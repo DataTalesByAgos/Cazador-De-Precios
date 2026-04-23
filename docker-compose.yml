@@ -1,0 +1,50 @@
+services:
+  mysql:
+    image: mysql:8
+    container_name: mysql_prices
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/schema.sql   # init script
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 90s   # tiempo de gracia para el init + ejecución del schema
+
+  app:
+    build: .
+    container_name: pipeline_app
+    profiles:
+      - cron
+    depends_on:
+      mysql:
+        condition: service_healthy    # espera a que MySQL esté listo
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=mysql
+    volumes:
+      - .:/app
+    command: ["python", "main.py"]
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin_prices
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      - PMA_HOST=mysql
+      - PMA_USER=root
+      - PMA_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    depends_on:
+      - mysql
+
+volumes:
+  mysql_data:

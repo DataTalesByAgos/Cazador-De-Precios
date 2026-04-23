@@ -1,0 +1,25 @@
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Entornos virtuales
+venv/
+.env/
+.env.local
+
+# Python
+__pycache__/
+*.pyc
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Logs
+*.log
+
+
+data/
+*.csv
+
+# Configs sensibles
+.env
