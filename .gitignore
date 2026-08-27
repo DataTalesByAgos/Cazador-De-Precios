@@ -10,6 +10,8 @@ __pycache__/
 data/
 *.csv
 .env
+*.sql
+scratch.txt
 
 # Backend specific ignored paths
 backend/venv/
